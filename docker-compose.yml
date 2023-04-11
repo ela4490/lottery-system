@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  postgres:
+    image: 'postgres:13.1-alpine'
+    env_file:
+      - database.env
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - '5432:5432'
+    networks:
+      - postgres
+
+  lottery:
+    container_name: 'lottery'
+    build: .
+    image: 'lottery'
+    networks:
+      - postgres
+    depends_on:
+      - postgres
+    ports:
+      - '8080:8080'
+    environment:
+      PG_URL: jdbc:postgresql://postgres:5432/test_database
+
+networks:
+  postgres:
+    driver: bridge
+
+volumes:
+  postgres:
