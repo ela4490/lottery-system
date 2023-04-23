@@ -1,4 +1,4 @@
-# Lottery Service
+# Lottery System
 
 The lottery service includes the following features:
 
