@@ -32,17 +32,17 @@ class ParticipantServiceImplTest {
     private final BallotRepository ballotRepository = mock(BallotRepository.class);
     private final LotteryService lotteryService = mock(LotteryService.class);
     private final DateTimeService dateTimeService = mock(DateTimeService.class);
-
     private final Timestamp TEST_TIMESTAMP = Timestamp.from(Instant.now());
-
 
     @Test
     public void testRegisterWhenLotteryIsFinished() {
-        RegisterParticipantRequest registerParticipantRequest = generateRegisterParticipantRequest();
-        Lottery lottery = generateLottery();
+        // Arrange
+        final var registerParticipantRequest = generateRegisterParticipantRequest();
+        final var lottery = generateLottery();
         lottery.setState(LotteryState.FINISHED);
         when(lotteryService.findById(registerParticipantRequest.getLotteryId())).thenReturn(lottery);
 
+        // Act and Assert
         assertThrows(
                 FinishedLotteryException.class,
                 () -> participantServiceImpl().register(registerParticipantRequest)
@@ -51,38 +51,45 @@ class ParticipantServiceImplTest {
 
     @Test
     public void testRegisterWhenParticipantAlreadyExists() {
-        RegisterParticipantRequest registerParticipantRequest = generateRegisterParticipantRequest();
-        Participant participant = generateParticipant(123L);
+        // Arrange
+        final var registerParticipantRequest = generateRegisterParticipantRequest();
+        final var participant = generateParticipant(123L);
         when(lotteryService.findById(registerParticipantRequest.getLotteryId())).thenReturn(participant.getLottery());
         when(participantRepository.findBySsnAndLottery(registerParticipantRequest.getSsn(), participant.getLottery()))
                 .thenReturn(Optional.of(participant));
 
-        Long participantId = participantServiceImpl().register(registerParticipantRequest);
+        // Act
+        final var participantId = participantServiceImpl().register(registerParticipantRequest);
 
+        // Assert
         assertEquals(participant.getId(), participantId);
     }
 
     @Test
     public void testRegisterWhenParticipantDoesNotExists() {
-        RegisterParticipantRequest registerParticipantRequest = generateRegisterParticipantRequest();
-        Participant participant = generateParticipant(123L);
+        // Arrange
+        final var registerParticipantRequest = generateRegisterParticipantRequest();
+        final var participant = generateParticipant(123L);
         when(lotteryService.findById(registerParticipantRequest.getLotteryId())).thenReturn(participant.getLottery());
         when(participantRepository.findBySsnAndLottery(registerParticipantRequest.getSsn(), participant.getLottery()))
                 .thenReturn(Optional.empty());
         Long participantId = 132L;
-        Participant participantResp = generateParticipant(participantId);
+        final var participantResp = generateParticipant(participantId);
         when(dateTimeService.currentTimestamp()).thenReturn(TEST_TIMESTAMP);
         when(participantRepository.save(generateParticipant(null))).thenReturn(participantResp);
 
-        Long actualParticipantId = participantServiceImpl().register(registerParticipantRequest);
+        // Act
+        final var actualParticipantId = participantServiceImpl().register(registerParticipantRequest);
 
+        // Assert
         assertEquals(participantResp.getId(), actualParticipantId);
     }
 
     @Test
     public void testSubmitWhenParticipantDoesNotExists() {
-        SubmissionRequest submissionRequest = generateSubmissionRequest();
-        Submission submission = generateSubmission(null);
+        // Arrange
+        final var submissionRequest = generateSubmissionRequest();
+        final var submission = generateSubmission(null);
         when(lotteryService.findById(submissionRequest.getLotteryId()))
                 .thenReturn(submission.getParticipant().getLottery());
         when(participantRepository.findBySsnAndLottery(
@@ -90,6 +97,7 @@ class ParticipantServiceImplTest {
                 submission.getParticipant().getLottery())
         ).thenReturn(Optional.empty());
 
+        // Act and Assert
         assertThrows(
                 NotFoundException.class,
                 () -> participantServiceImpl().submit(submissionRequest)
@@ -98,8 +106,9 @@ class ParticipantServiceImplTest {
 
     @Test
     public void testSubmitWhenLotteryIsFinished() {
-        SubmissionRequest submissionRequest = generateSubmissionRequest();
-        Submission submission = generateSubmission(null);
+        // Arrange
+        final var submissionRequest = generateSubmissionRequest();
+        final var submission = generateSubmission(null);
         submission.getParticipant().getLottery().setState(LotteryState.FINISHED);
         when(lotteryService.findById(submissionRequest.getLotteryId()))
                 .thenReturn(submission.getParticipant().getLottery());
@@ -108,6 +117,7 @@ class ParticipantServiceImplTest {
                 submission.getParticipant().getLottery())
         ).thenReturn(Optional.of(submission.getParticipant()));
 
+        // Act and Assert
         assertThrows(
                 FinishedLotteryException.class,
                 () -> participantServiceImpl().submit(generateSubmissionRequest())
@@ -116,22 +126,24 @@ class ParticipantServiceImplTest {
 
     @Test
     public void testSubmit() {
-        SubmissionRequest submissionRequest = generateSubmissionRequest();
-        Submission submission = generateSubmission(null);
+        // Arrange
+        final var submissionRequest = generateSubmissionRequest();
+        final var submission = generateSubmission(null);
         when(lotteryService.findById(submissionRequest.getLotteryId()))
                 .thenReturn(submission.getParticipant().getLottery());
         when(participantRepository.findBySsnAndLottery(
                 submissionRequest.getSsn(),
                 submission.getParticipant().getLottery())
         ).thenReturn(Optional.of(submission.getParticipant()));
-        Submission insertedSubmission = generateSubmission(234L);
+        final var insertedSubmission = generateSubmission(234L);
         when(dateTimeService.currentTimestamp()).thenReturn(TEST_TIMESTAMP);
         when(submissionRepository.save(submission)).thenReturn(insertedSubmission);
-        ArgumentCaptor<Ballot> ballotArgumentCaptor = ArgumentCaptor.forClass(Ballot.class);
+        final var ballotArgumentCaptor = ArgumentCaptor.forClass(Ballot.class);
 
-
+        // Act
         List<String> actualCodes = participantServiceImpl().submit(generateSubmissionRequest());
 
+        // Assert
         assertEquals(submission.getNumberOfBallots(), actualCodes.size());
         verify(submissionRepository).save(submission);
         verify(ballotRepository, times(insertedSubmission.getNumberOfBallots())).save(ballotArgumentCaptor.capture());
@@ -145,6 +157,7 @@ class ParticipantServiceImplTest {
 
     @Test
     public void testReadAllBallotsOfLottery() {
+        // Arrange
         var ballots = List.of(
                 new Ballot(1L, generateSubmission(11L), "code1"),
                 new Ballot(2L, generateSubmission(22L), "code2"),
@@ -155,8 +168,10 @@ class ParticipantServiceImplTest {
         when(ballotRepository.findAllBySubmission_Participant_SsnAndSubmission_Participant_Lottery_Id(ssn, lotteryId))
                 .thenReturn(ballots);
 
-        List<String> codes = participantServiceImpl().readAllBallotsOfLottery(ssn, lotteryId);
+        // Act
+        final var codes = participantServiceImpl().readAllBallotsOfLottery(ssn, lotteryId);
 
+        // Assert
         assertEquals(List.of("code1", "code2", "code3"), codes);
     }
 

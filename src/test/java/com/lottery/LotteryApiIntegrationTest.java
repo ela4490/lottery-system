@@ -5,7 +5,6 @@ import com.lottery.controller.dto.LotteryResponseDto;
 import com.lottery.controller.dto.ParticipantBallotsResponseDto;
 import com.lottery.controller.dto.RegisterParticipantResponseDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,8 +28,6 @@ public class LotteryApiIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private TestRestTemplate testRestTemplate;
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     public void endToEndTest() throws JSONException, JsonProcessingException {

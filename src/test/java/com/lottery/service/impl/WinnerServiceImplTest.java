@@ -30,29 +30,33 @@ class WinnerServiceImplTest {
     private final BallotRepository ballotRepository = mock(BallotRepository.class);
     private final DateTimeService dateTimeService = mock(DateTimeService.class);
     private final NumberService numberService = mock(NumberService.class);
-
     private final Timestamp TEST_TIMESTAMP = Timestamp.from(Instant.now());
 
     @Test
     public void testReadWinnerByDateWhenNoResultsForDate() {
-        String dateStr = TEST_TIMESTAMP.toLocalDateTime().toLocalDate().toString();
-        Date date = Date.from(TEST_TIMESTAMP.toInstant());
+        // Arrange
+        final var dateStr = TEST_TIMESTAMP.toLocalDateTime().toLocalDate().toString();
+        final var date = Date.from(TEST_TIMESTAMP.toInstant());
         when(dateTimeService.convert(LocalDate.parse(dateStr))).thenReturn(date);
 
+        // Act and Assert
         assertThrows(InvalidDateException.class, () -> winnerServicdeImpl().readWinnerByDate(dateStr));
     }
 
     @Test
     public void testReadWinnerByDate() {
-        String dateStr = TEST_TIMESTAMP.toLocalDateTime().toLocalDate().toString();
-        Date date = Date.from(TEST_TIMESTAMP.toInstant());
+        // Arrange
+        final var dateStr = TEST_TIMESTAMP.toLocalDateTime().toLocalDate().toString();
+        final var date = Date.from(TEST_TIMESTAMP.toInstant());
         when(dateTimeService.convert(LocalDate.parse(dateStr))).thenReturn(date);
-        Ballot ballot = new Ballot(123L, generateSubmission(123L), "code");
-        Winner winner = new Winner(234L, ballot, date);
+        final var ballot = new Ballot(123L, generateSubmission(123L), "code");
+        final var winner = new Winner(234L, ballot, date);
         when(winnerRepository.findByDate(date)).thenReturn(Optional.of(winner));
 
+        // Act
         WinnerInfo winnerInfo = winnerServicdeImpl().readWinnerByDate(dateStr);
 
+        // Assert
         assertEquals(ballot.getSubmission().getParticipant().getLottery().getAward(), winnerInfo.getAward());
         assertEquals(ballot.getSubmission().getParticipant().getLottery().getName(), winnerInfo.getLotteryName());
         assertEquals(ballot.getSubmission().getParticipant().getName(), winnerInfo.getParticipantName());
@@ -63,23 +67,26 @@ class WinnerServiceImplTest {
 
     @Test
     public void testSelectWinnerWhenNoBalletsFound() {
+        // Arrange
         when(dateTimeService.now()).thenReturn(TEST_TIMESTAMP.toLocalDateTime());
-        Date startOfDay = mock(Date.class);
-        Date endOfDay = mock(Date.class);
+        final var startOfDay = mock(Date.class);
+        final var endOfDay = mock(Date.class);
         when(dateTimeService.convert(TEST_TIMESTAMP.toLocalDateTime().toLocalDate().atStartOfDay()))
                 .thenReturn(startOfDay);
         when(dateTimeService.convert(TEST_TIMESTAMP.toLocalDateTime().toLocalDate().atTime(LocalTime.MAX)))
                 .thenReturn(endOfDay);
         when(ballotRepository.findRangeOfIds(startOfDay, endOfDay)).thenReturn(new Object[][]{});
 
+        // Act and Assert
         assertThrows(NoBallotSubmittedException.class, () -> winnerServicdeImpl().selectWinner());
     }
 
     @Test
     public void testSelectWinner() {
+        // Arrange
         when(dateTimeService.now()).thenReturn(TEST_TIMESTAMP.toLocalDateTime());
-        Date startOfDay = mock(Date.class);
-        Date endOfDay = mock(Date.class);
+        final var startOfDay = mock(Date.class);
+        final var endOfDay = mock(Date.class);
         when(dateTimeService.convert(TEST_TIMESTAMP.toLocalDateTime().toLocalDate().atStartOfDay()))
                 .thenReturn(startOfDay);
         when(dateTimeService.convert(TEST_TIMESTAMP.toLocalDateTime().toLocalDate().atTime(LocalTime.MAX)))
@@ -92,12 +99,14 @@ class WinnerServiceImplTest {
                         }
                 });
         when(numberService.randomBetween(3L, 5l)).thenReturn(4L);
-        Ballot ballot = new Ballot(4L, generateSubmission(234L), "code");
+        final var ballot = new Ballot(4L, generateSubmission(234L), "code");
         when(ballotRepository.findById(4L)).thenReturn(Optional.of(ballot));
-        ArgumentCaptor<Winner> winnerArgumentCaptor = ArgumentCaptor.forClass(Winner.class);
+        final var winnerArgumentCaptor = ArgumentCaptor.forClass(Winner.class);
 
+        // Act
         winnerServicdeImpl().selectWinner();
 
+        // Assert
         verify(winnerRepository).save(winnerArgumentCaptor.capture());
         assertEquals(ballot, winnerArgumentCaptor.getValue().getBallot());
     }
