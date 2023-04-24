@@ -1,5 +1,7 @@
 package com.lottery.service.impl;
 
+import com.lottery.controller.dto.RegisterParticipantRequestDto;
+import com.lottery.controller.dto.SubmissionRequestDto;
 import com.lottery.domain.BallotUnit;
 import com.lottery.domain.LotteryState;
 import com.lottery.domain.entity.Ballot;
@@ -13,7 +15,6 @@ import com.lottery.repository.ParticipantRepository;
 import com.lottery.repository.SubmissionRepository;
 import com.lottery.service.DateTimeService;
 import com.lottery.service.LotteryService;
-import com.lottery.service.RegisterParticipantRequest;
 import com.lottery.service.SubmissionRequest;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -206,8 +207,8 @@ class ParticipantServiceImplTest {
         );
     }
 
-    private RegisterParticipantRequest generateRegisterParticipantRequest() {
-        return new RegisterParticipantRequest(
+    private RegisterParticipantRequestDto generateRegisterParticipantRequest() {
+        return new RegisterParticipantRequestDto(
                 "participantName",
                 "participantSsn",
                 generateLottery().getId()
@@ -223,9 +224,9 @@ class ParticipantServiceImplTest {
         );
     }
 
-    private SubmissionRequest generateSubmissionRequest() {
+    private SubmissionRequestDto generateSubmissionRequest() {
         Participant participant = generateParticipant(null);
-        return new SubmissionRequest(
+        return new SubmissionRequestDto(
                 participant.getLottery().getId(),
                 5,
                 participant.getSsn()

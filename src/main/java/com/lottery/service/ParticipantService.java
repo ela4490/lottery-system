@@ -1,5 +1,7 @@
 package com.lottery.service;
 
+import com.lottery.controller.dto.RegisterParticipantRequestDto;
+import com.lottery.controller.dto.SubmissionRequestDto;
 import com.lottery.domain.entity.Lottery;
 
 import java.util.List;
@@ -12,7 +14,7 @@ public interface ParticipantService {
      * @param registerParticipantRequest register participant request
      * @return the id of the registered participant
      */
-    Long register(RegisterParticipantRequest registerParticipantRequest);
+    Long register(RegisterParticipantRequestDto registerParticipantRequest);
 
     /**
      * Submits a ballot to a lottery
@@ -20,7 +22,7 @@ public interface ParticipantService {
      * @param submissionRequest submission request
      * @return list of submitted ballots
      */
-    List<String> submit(SubmissionRequest submissionRequest);
+    List<String> submit(SubmissionRequestDto submissionRequest);
 
     /**
      * Reads all ballots of a lottery

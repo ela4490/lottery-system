@@ -1,5 +1,7 @@
 package com.lottery.service.impl;
 
+import com.lottery.controller.dto.RegisterParticipantRequestDto;
+import com.lottery.controller.dto.SubmissionRequestDto;
 import com.lottery.domain.LotteryState;
 import com.lottery.domain.entity.Ballot;
 import com.lottery.domain.entity.Lottery;
@@ -47,10 +49,7 @@ public class ParticipantServiceImpl implements ParticipantService {
 
     @Override
     @Transactional
-    public Long register(final RegisterParticipantRequest registerParticipantRequest) {
-        Assert.notNull(registerParticipantRequest.getName(), "registerParticipantRequest.name cannot be null");
-        Assert.notNull(registerParticipantRequest.getSsn(), "registerParticipantRequest.ssn cannot be null");
-        Assert.notNull(registerParticipantRequest.getLotteryId(), "registerParticipantRequest.lotteryId cannot be null");
+    public Long register(final RegisterParticipantRequestDto registerParticipantRequest) {
         LOG.info("Registering participant {} to lottery {}", registerParticipantRequest.getSsn(), registerParticipantRequest.getLotteryId());
         final var lottery = lotteryService.findById(registerParticipantRequest.getLotteryId());
         if (lottery.getState() != LotteryState.ACTIVE) {
@@ -73,13 +72,11 @@ public class ParticipantServiceImpl implements ParticipantService {
 
     @Override
     @Transactional
-    public List<String> submit(final SubmissionRequest submissionRequest) {
-        Assert.notNull(submissionRequest.getLotteryId(), "submissionRequest.lotteryId cannot be null");
-        Assert.notNull(submissionRequest.getNumberOfBallots(), "submissionRequest.numberOfBallots cannot be null");
+    public List<String> submit(final SubmissionRequestDto submissionRequest) {
         LOG.info("Submitting {} ballots to lottery {}", submissionRequest.getNumberOfBallots(), submissionRequest.getLotteryId());
         final var lottery = lotteryService.findById(submissionRequest.getLotteryId());
         final var optionalParticipant = participantRepository.findBySsnAndLottery(submissionRequest.getSsn(), lottery);
-        if (optionalParticipant.isEmpty()) throw new NotFoundException("Participant is not registered for lottery !!!");
+        if (optionalParticipant.isEmpty()) throw new NotFoundException("Participant is not registered for lottery!");
 
         final var participant = optionalParticipant.get();
 

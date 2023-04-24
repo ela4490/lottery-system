@@ -1,5 +1,6 @@
 package com.lottery.service;
 
+import com.lottery.controller.dto.CreateLotteryRequestDto;
 import com.lottery.domain.entity.Lottery;
 
 import java.util.List;
@@ -12,7 +13,7 @@ public interface LotteryService {
      * @param createLotteryRequest create lottery request
      * @return the id of the created lottery
      */
-    Long create(CreateLotteryRequest createLotteryRequest);
+    Long create(CreateLotteryRequestDto createLotteryRequest);
 
     /**
      * Reads all lotteries

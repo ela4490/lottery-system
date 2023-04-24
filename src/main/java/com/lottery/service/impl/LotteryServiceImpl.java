@@ -1,10 +1,10 @@
 package com.lottery.service.impl;
 
+import com.lottery.controller.dto.CreateLotteryRequestDto;
 import com.lottery.domain.LotteryState;
 import com.lottery.domain.entity.Lottery;
 import com.lottery.exception.NotFoundException;
 import com.lottery.repository.LotteryRepository;
-import com.lottery.service.CreateLotteryRequest;
 import com.lottery.service.DateTimeService;
 import com.lottery.service.LotteryService;
 import org.slf4j.Logger;
@@ -14,7 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import javax.swing.text.html.Option;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -31,11 +33,7 @@ public class LotteryServiceImpl implements LotteryService {
 
     @Override
     @Transactional
-    public Long create(final CreateLotteryRequest createLotteryRequest) {
-        Assert.notNull(createLotteryRequest.getName(), "createLotteryRequest.name cannot be null");
-        Assert.notNull(createLotteryRequest.getAward(), "createLotteryRequest.award cannot be null");
-        Assert.notNull(createLotteryRequest.getBallotUnit(), "createLotteryRequest.ballotUnit cannot be null");
-        Assert.notNull(createLotteryRequest.getBallotUnit(), "createLotteryRequest.ballotUnit cannot be null");
+    public Long create(final CreateLotteryRequestDto createLotteryRequest) {
         LOG.info("Creating lottery with request: {}", createLotteryRequest);
         final var lottery = new Lottery();
         lottery.setName(createLotteryRequest.getName());
@@ -52,8 +50,6 @@ public class LotteryServiceImpl implements LotteryService {
     @Override
     @Transactional(readOnly = true)
     public List<Lottery> readAll(Integer page, Integer size) {
-        Assert.notNull(page, "page cannot be null");
-        Assert.notNull(size, "size cannot be null");
         LOG.info("Reading all lotteries with page: {} and size: {}", page, size);
         final var lotteries = lotteryRepository.findAllByOrderByCreateDateDesc(PageRequest.of(page, size));
         LOG.debug("Lotteries read: {}", lotteries);
@@ -65,7 +61,9 @@ public class LotteryServiceImpl implements LotteryService {
     public void finish(final Long id) {
         LOG.info("Finishing lottery with id: {}", id);
         final var optionalLottery = lotteryRepository.findById(id);
-        if (optionalLottery.isEmpty()) throw new NotFoundException(String.format("Lottery with id: %s not found", id));
+        if (optionalLottery.isEmpty()) {
+            throw new NotFoundException(String.format("Lottery with id: %s not found", id));
+        }
         final var lottery = optionalLottery.get();
         lottery.setState(LotteryState.FINISHED);
         lotteryRepository.save(lottery);

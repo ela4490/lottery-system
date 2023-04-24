@@ -1,11 +1,11 @@
 package com.lottery.service.impl;
 
+import com.lottery.controller.dto.CreateLotteryRequestDto;
 import com.lottery.domain.BallotUnit;
 import com.lottery.domain.LotteryState;
 import com.lottery.domain.entity.Lottery;
 import com.lottery.exception.NotFoundException;
 import com.lottery.repository.LotteryRepository;
-import com.lottery.service.CreateLotteryRequest;
 import com.lottery.service.DateTimeService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -74,8 +74,8 @@ class LotteryServiceImplTest {
         );
     }
 
-    private CreateLotteryRequest generateLotteryRequest() {
-        return new CreateLotteryRequest(
+    private CreateLotteryRequestDto generateLotteryRequest() {
+        return new CreateLotteryRequestDto(
                 "lotteryName",
                 "lotteryAward",
                 123L,

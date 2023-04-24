@@ -1,9 +1,8 @@
 package com.lottery.controller.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.*;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
@@ -12,6 +11,7 @@ import javax.validation.constraints.Positive;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties
 public class SubmissionRequestDto {
 
     @NotNull
@@ -20,5 +20,5 @@ public class SubmissionRequestDto {
     @NotNull
     @Positive
     private Integer numberOfBallots;
-
+    private String ssn;
 }
